@@ -792,25 +792,7 @@ Bool
 mb_wm_theme_is_client_shaped (MBWMTheme             * theme,
 			      MBWindowManagerClient * client)
 {
-#ifdef HAVE_XEXT
-  MBWMXmlClient * c;
-  MBWMClientType  c_type;
-
-  if (!client || !theme || !theme->shaped || client->is_argb32)
-    return False;
-
-  c_type = MB_WM_CLIENT_CLIENT_TYPE (client);
-
-  if (theme->xml_clients &&
-      (c = mb_wm_xml_client_find_by_type (theme->xml_clients, c_type)))
-    {
-      return c->shaped;
-    }
-
   return False;
-#else
-  return False;
-#endif
 }
 
 /*

@@ -154,13 +154,6 @@ if test x$have_xfixes = xyes; then
   MBWM2_PKGREQUIRES="$MBWM2_PKGREQUIRES xfixes >= 0.4"
 fi
 
-PKG_CHECK_MODULES(XEXT, xext, have_xext=yes, have_xext=no)
-
-if test x$have_xext = xyes; then
-  AC_DEFINE(HAVE_XEXT, [1], [Use Xext ext])
-  MBWM2_PKGREQUIRES="$MBWM2_PKGREQUIRES xext"
-fi
-
 PKG_CHECK_MODULES(XCURSOR, xcursor, have_xcursor=yes, have_xcursor=no)
 
 if test x$have_xcursor = xyes; then
@@ -218,7 +211,6 @@ echo "
 
     Extension:
 	Xfixes                :   ${have_xfixes}
-	Xext                  :   ${have_xext}
 	Xcursor               :   ${have_xcursor}
 
     Themes:

@@ -224,15 +224,7 @@ mb_wm_comp_mgr_clutter_fetch_texture (MBWMCompMgrClient *client)
 {
   MBWMCompMgrClutterClient  *cclient  = MB_WM_COMP_MGR_CLUTTER_CLIENT(client);
   MBWindowManagerClient     *wm_client = client->wm_client;
-  MBWindowManager           *wm        = client->wm;
   Window                     xwin;
-#if defined(HAVE_XEXT)
-  /* Stuff we need for shaped windows */
-  XRectangle                *shp_rect;
-  int                        shp_order;
-  int                        shp_count;
-  int                        i;
-#endif
 
   if (!(cclient->priv->flags & MBWMCompMgrClutterClientMapped))
     return;
@@ -261,41 +253,6 @@ mb_wm_comp_mgr_clutter_fetch_texture (MBWMCompMgrClient *client)
     }
 
   cclient->priv->bound = TRUE;
-
-#if defined(HAVE_XEXT)
-  /*
-   * If the client is shaped, we have to tell our texture about which bits of
-   * it are visible. If it's not we want to just clear all shapes, and it'll
-   * know it needs to draw the whole thing
-   */
-  clutter_x11_texture_pixmap_clear_shapes(
-                    CLUTTER_X11_TEXTURE_PIXMAP (cclient->priv->texture));
-
-  if (mb_wm_theme_is_client_shaped (wm->theme, wm_client))
-    {
-      shp_rect = XShapeGetRectangles (wm->xdpy, xwin,
-				     ShapeBounding, &shp_count, &shp_order);
-
-      if (shp_rect && shp_count)
-	{
-	  for (i = 0; i < shp_count; ++i)
-	    {
-	      ClutterGeometry geo;
-	      geo.x = shp_rect[i].x;
-	      geo.y = shp_rect[i].y;
-	      geo.width = shp_rect[i].width;
-	      geo.height = shp_rect[i].height;
-
-	      clutter_x11_texture_pixmap_add_shape(
-	          CLUTTER_X11_TEXTURE_PIXMAP (cclient->priv->texture),
-	          geo);
-	    }
-
-	  XFree (shp_rect);
-	}
-    }
-
-#endif
 }
 
 #if DEBUG_ACTOR
@@ -343,9 +300,6 @@ mb_wm_comp_mgr_clutter_client_init (MBWMObject *obj, va_list vap)
 
   cclient->priv->actor = g_object_ref_sink( clutter_group_new() );
   cclient->priv->bound = FALSE;
-  /* Explicitly enable maemo-specific visibility detection to cut down
-   * spurious paints */
-  clutter_actor_set_visibility_detect(cclient->priv->actor, TRUE);
 
   g_object_set_data (G_OBJECT (cclient->priv->actor),
                      "HD-MBWMCompMgrClutterClient", cclient);
@@ -1193,18 +1147,9 @@ mb_wm_comp_mgr_clutter_map_notify_real (MBWMCompMgr *mgr,
 
   texture = clutter_x11_texture_pixmap_new ();
 
-  /* If the window isn't ARGB32, make sure we don't allow alpha */
-  if (!c->is_argb32)
-    clutter_x11_texture_pixmap_set_allow_alpha(
-        CLUTTER_X11_TEXTURE_PIXMAP(texture), FALSE);
-
   sprintf(actor_name, "texture_0x%lx",
           c->xwin_frame ? c->xwin_frame : c->window->xwindow);
   clutter_actor_set_name(texture, actor_name);
-
-  /* Explicitly enable maemo-specific visibility detection to cut down
-   * spurious paints */
-  clutter_actor_set_visibility_detect(texture, TRUE);
 
   clutter_actor_show (texture);
 

@@ -9,10 +9,6 @@
 #include <X11/Xft/Xft.h>
 #include <glib-object.h>
 
-#ifdef HAVE_XEXT
-#include <X11/extensions/shape.h>
-#endif
-
 static int
 mb_wm_theme_png_ximg (MBWMThemePng * theme, const char * img);
 
@@ -438,15 +434,10 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
   const char		 * title;
   int			   x, y;
   int			   operator = PictOpSrc;
-  Bool			   shaped;
 
   if (!((c = mb_wm_xml_client_find_by_type (theme->xml_clients, c_type)) &&
         (d = mb_wm_xml_decor_find_by_type (c->decors, decor->type))))
     return;
-
-#ifdef HAVE_XEXT
-  shaped = theme->shaped && c->shaped && !mb_wm_client_is_argb32 (client);
-#endif
 
   if (data && (mb_wm_decor_get_dirty_state (decor) & MBWMDecorDirtyTitle))
     {
@@ -469,16 +460,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
 				 DefaultDepth(xdpy, xscreen));
 
 
-#ifdef HAVE_XEXT
-      if (shaped)
-	{
-	  data->shape_mask =
-	    XCreatePixmap(xdpy, decor->xwin,
-			  decor->geom.width, decor->geom.height, 1);
-
-	  data->gc_mask = XCreateGC (xdpy, data->shape_mask, 0, NULL);
-	}
-#endif
       data->xftdraw = XftDrawCreate (xdpy, data->xpix,
 				     DefaultVisual (xdpy, xscreen),
 				     DefaultColormap (xdpy, xscreen));
@@ -581,17 +562,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
 			   width1, 0,
 			   width2, d->height);
 
-#ifdef HAVE_XEXT
-	  if (shaped)
-	    {
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, d->y, width1, d->height, 0, 0);
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 x2, d->y, width2, d->height, width1, 0);
-	    }
-#endif
 	}
       else if (decor->geom.width == d->width)
 	{
@@ -603,14 +573,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
 			   d->x, d->y, 0, 0,
 			   0, 0, d->width, d->height);
 
-#ifdef HAVE_XEXT
-	  if (shaped)
-	    {
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, d->y, d->width, d->height, 0, 0);
-	    }
-#endif
 	}
       else
 	{
@@ -655,29 +617,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
 			   pad_offset + gap_length, 0,
 			   d->width - pad_offset, d->height);
 
-#ifdef HAVE_XEXT
-	  if (shaped)
-	    {
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, d->y,
-			 pad_offset, d->height,
-			 0, 0);
-
-	      for (x = pad_offset; x < pad_offset + gap_length; x += pad_length)
-		XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			   data->gc_mask,
-			   d->x + pad_offset, d->y,
-			   d->width - pad_offset, d->height,
-			   x, 0);
-
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x + pad_offset, d->y,
-			 d->width - pad_offset, d->height,
-			 pad_offset + gap_length, 0);
-	    }
-#endif
 	}
     }
   else
@@ -707,17 +646,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
 			   0, height1,
 			   d->width, height2);
 
-#ifdef HAVE_XEXT
-	  if (shaped)
-	    {
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, d->y, d->width, height1, 0, 0);
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, y2, d->width, height2, 0, height1);
-	    }
-#endif
 	}
       else if (decor->geom.height == d->height)
 	{
@@ -730,14 +658,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
 			   0, 0,
 			   d->width, d->height);
 
-#ifdef HAVE_XEXT
-	  if (shaped)
-	    {
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, d->y, d->width, d->height, 0, 0);
-	    }
-#endif
 	}
       else
 	{
@@ -780,29 +700,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
 			   0, pad_offset + gap_length,
 			   d->width, d->height - pad_offset);
 
-#ifdef HAVE_XEXT
-	  if (shaped)
-	    {
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, d->y,
-			 d->width, pad_offset,
-			 0, 0);
-
-	      for (y = pad_offset; y < pad_offset + gap_length; y += pad_length)
-		XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			   data->gc_mask,
-			   d->x, d->y + pad_offset,
-			   d->width, pad_length,
-			   0, y);
-
-	      XCopyArea (xdpy, p_theme->shape_mask, data->shape_mask,
-			 data->gc_mask,
-			 d->x, d->y + pad_offset,
-			 d->width, d->height - pad_offset,
-			 0, pad_offset + gap_length);
-	    }
-#endif
 	}
     }
 
@@ -927,20 +824,6 @@ mb_wm_theme_png_paint_decor (MBWMTheme *theme, MBWMDecor *decor)
       XftDrawSetClipRectangles (data->xftdraw, 0, 0, &rec, 1);
     }
 
-#ifdef HAVE_XEXT
-  if (shaped)
-    {
-      XShapeCombineMask (xdpy, decor->xwin,
-			 ShapeBounding, 0, 0,
-			 data->shape_mask, ShapeSet);
-
-      XShapeCombineShape (xdpy,
-			  client->xwin_frame,
-			  ShapeBounding, decor->geom.x, decor->geom.y,
-			  decor->xwin,
-			  ShapeBounding, ShapeUnion);
-    }
-#endif
   XClearWindow (xdpy, decor->xwin);
 }
 
