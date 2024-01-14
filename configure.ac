@@ -51,7 +51,7 @@ AC_ARG_ENABLE(png-theme,
 
 AC_ARG_WITH(pango,
   [  --with-pango            Use of pango for text layout],
-  [use_pango=$withval], [use_pango=no])
+  [use_pango=$withval], [use_pango=yes])
 
 dnl Temporarily set to yes so it builds properly.  See #89473.
 AC_ARG_WITH(gtk,
@@ -79,7 +79,6 @@ needed_pkgs="$needed_pkgs $clutter_package xcomposite xdamage "
 COMPOSITE_MANAGER_DEFINE="-DCOMPOSITE_MANAGER_CLUTTER"
 AC_SUBST(COMPOSITE_MANAGER_DEFINE)
 
-AC_SUBST(MBWM_DEB_VERSION, $DEB_VERSION)
 
 MBWM_WANT_DEBUG=0
 if test "x$want_debug" = "xyes"; then

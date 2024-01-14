@@ -1,3 +1,9 @@
+matchbox-window-manager-2 (1.0.0) unstable; urgency=medium
+
+  * Port to clutter-1.0
+
+ -- Javier Palacios <javiplx@gmail.com>  Fri,  3 Nov 2023 00:32:41 +0100
+
 matchbox-window-manager-2 (0.2.106) unstable; urgency=medium
 
   * Fix broken stacked windows on 64 bit platforms
